@@ -27,8 +27,6 @@ Selection bias occurs when observed data isn't representative of the population.
 
 ![Exemplar statistics meme showing the four-panel structure: Reality (original image), Your Model (stippled version), Selection Bias (letter S), and Estimate (masked stippled image)](statistics_meme.png)
 
-### Step 1: Load Images
-
 
 ```{python}
 #| label: load-images
