@@ -3,36 +3,15 @@ title: "Selection Bias & Missing Data Challenge - Part 2"
 subtitle: "Creating a Statistics Meme: Visualizing Selection Bias"
 format:
   html: default
+jupyter: misy331_base
 execute:
-  echo: true
+  echo: false
   eval: true
+python: /opt/anaconda3/envs/misy331_base/bin/python
 ---
 
 # 🎨 Selection Bias & Missing Data Challenge - Part 2
 
-::: {.callout-important}
-## 📊 Challenge Requirements
-
-**Your Task:** Create a four-panel statistics meme demonstrating selection bias using your original image and stippled version from [Part 1](https://flyaflya.github.io/stippleChallenge/).
-
-**Prerequisites:** Completed [Part 1](https://flyaflya.github.io/stippleChallenge/) with:
-
-1. Your original image file
-2. Your stippled image (numpy array or R matrix)
-3. Image dimensions (height and width)
-
-**Deliverables:**
-
-1. Four-panel meme (1×4 or 2×2 layout) with labels: Reality, Your Model, Selection Bias, Estimate
-2. Code (Python or R) that generates the meme
-3. GitHub Pages site named "statsMemeChallenge" with your meme and explanation
-
-**Repository Information:**
-
-- **Source/Starter File:** Available in the main repository at [https://github.com/flyaflya/statsMemeChallenge](https://github.com/flyaflya/statsMemeChallenge)
-- **Challenge Read Online:** View the challenge instructions at [https://flyaflya.github.io/statsMemeChallenge](https://flyaflya.github.io/statsMemeChallenge)
-- **Your Submission:** Fork this challenge and create your GitHub Pages site at `https://[your-username].github.io/statsMemeChallenge/`
-:::
 
 ## The Problem: Visualizing Selection Bias
 
@@ -49,46 +28,62 @@ Selection bias occurs when observed data isn't representative of the population.
 
 ![Exemplar statistics meme showing the four-panel structure: Reality (original image), Your Model (stippled version), Selection Bias (letter S), and Estimate (masked stippled image)](statistics_meme.png)
 
-**Your Goal:** Recreate this structure using **your own** original and stippled images from [Part 1](https://flyaflya.github.io/stippleChallenge/).
+### Step 1: Load Images
 
-## Why This Matters
+```{r}
+#| label: setup-python
+#| echo: false
+#| eval: true
+#| include: false
 
-This exercise is fundamentally about **walking AI through a process** to create valuable output. You're not just coding—you're collaborating with AI to transform abstract statistical concepts into a memorable visual artifact. The meme you create will serve as a mental anchor: whenever you think about selection bias in the future, you'll ask yourself: **"Does my sample match my population of interest?"** This visualization will stick with you for the rest of your life, making it easier to recognize and address selection bias in real-world data analysis.
+# Configure reticulate to use misy331_base conda environment
+if (!requireNamespace("reticulate", quietly = TRUE)) {
+  install.packages("reticulate")
+}
+library(reticulate)
 
-## Getting Started: Repository Setup 🚀
+# Set the Python path explicitly before any other operations
+python_path <- "/opt/anaconda3/envs/misy331_base/bin/python"
 
-::: {.callout-important}
-## 📁 Repository Setup Instructions
+# Verify the Python executable exists
+if (!file.exists(python_path)) {
+  stop("Python not found at: ", python_path, "\nPlease check your conda environment setup.")
+}
 
-**Step 1:** Fork the starter repository:
+# Set environment variable for reticulate
+Sys.setenv(RETICULATE_PYTHON = python_path)
 
-- Navigate to [https://github.com/flyaflya/statsMemeChallenge](https://github.com/flyaflya/statsMemeChallenge)
-- Fork the repository to your GitHub account (this creates `https://github.com/[your-username]/statsMemeChallenge`)
+# Try multiple methods to set Python
+# Method 1: Use conda environment by name
+tryCatch({
+  use_condaenv("misy331_base", required = TRUE)
+  cat("✓ Successfully activated conda environment: misy331_base\n")
+}, error = function(e) {
+  cat("Method 1 failed, trying direct path...\n")
+  # Method 2: Use Python path directly
+  tryCatch({
+    use_python(python_path, required = TRUE)
+    cat("✓ Using Python at:", python_path, "\n")
+  }, error = function(e2) {
+    # Method 3: Force set the Python
+    py_config_set(python = python_path)
+    cat("✓ Forced Python path to:", python_path, "\n")
+  })
+})
 
-**Step 2:** Clone your forked repository locally using Cursor (or VS Code)
-
-**Step 3:** Set up GitHub Pages:
-
-- Go to your repository settings (click the "Settings" tab in your GitHub repository)
-- Scroll down to the "Pages" section in the left sidebar
-- Under "Source", select "Deploy from a branch"
-- Choose "main" branch and "/ (root)" folder
-- Click "Save"
-- Your site will be available at: `https://[your-username].github.io/statsMemeChallenge/`
-- **Note:** It may take a few minutes for the site to become available after enabling Pages
-
-**Step 4:** You're ready to start! Use the `index.qmd` file as your starting point.
-:::
-
-## Implementation Guide
-
-::: {.callout-important}
-## 📝 Code Visibility in Final HTML
-
-**Important:** When you create your final `index.qmd` file, use `echo: false` for all code chunks that generate the meme. The rendered HTML should show only the meme image and your explanation, not the code. The code should still be in the `.qmd` file (so it can be rendered), but it won't be displayed in the HTML output.
-:::
-
-### Step 1: Load Your Images
+# Verify Python is available
+if (py_available()) {
+  config <- py_config()
+  cat("✓ Python is available\n")
+  cat("  Path:", config$python, "\n")
+  cat("  Version:", config$version, "\n")
+  cat("  Python executable:", config$python, "\n")
+} else {
+  stop("✗ Python is still not available after configuration.\n",
+       "  Tried path: ", python_path, "\n",
+       "  Please check your conda environment setup.")
+}
+```
 
 ::: {.panel-tabset}
 
@@ -96,133 +91,178 @@ This exercise is fundamentally about **walking AI through a process** to create 
 
 ```{python}
 #| label: load-images
-#| echo: true
-#| eval: false
+#| echo: false
+#| eval: true
 
 import numpy as np
 from PIL import Image
 import matplotlib.pyplot as plt
+#import misy331_base
 
 # Load original image
-original_img = Image.open('your_image.jpg')
+original_img = Image.open('stippleChallenge/dart.jpeg')
 if original_img.mode != 'L':
     original_img = original_img.convert('L')
 original_array = np.array(original_img, dtype=np.float32) / 255.0
 
 # Load stippled image (from Part 1 - see https://flyaflya.github.io/stippleChallenge/)
-stipple_array = np.load('stippleImage.npy')
+# Note: You may need to save stipple_pattern from stippleChallenge first using:
+# np.save('stippleChallenge/stippleImage.npy', stipple_pattern)
+stipple_array = np.load('stippleChallenge/stippleImage.npy')
 
 print(f"Original: {original_array.shape}, Stipple: {stipple_array.shape}")
 ```
 
-### R
-
-```{r}
-#| label: load-images-r
-#| echo: true
-#| eval: false
-
-library(imager)
-
-# Load original image
-original_img <- load.image('your_image.jpg')
-if(dim(original_img)[3] == 3) {
-  original_img <- grayscale(original_img)
-}
-# Convert to matrix [h, w] and normalize
-arr <- as.array(original_img)
-original_array <- t(arr[,,1,1]) / max(arr)
-
-# Load stippled image (from Part 1 - see https://flyaflya.github.io/stippleChallenge/)
-# Adjust based on how you saved it - could be .RData, .rds, or regenerate
-# stipple_array <- readRDS('stippleImage.rds')
-
-cat("Original dimensions:", dim(original_array), "\n")
-```
-
-:::
 
 ### Step 2: Create the Block Letter "S"
 
-Create a matrix matching your image dimensions with a bold letter "S" rendered as black pixels on a white background.
+```{python}
+#| label: create-s-letter
+#| echo: false
+#| eval: true
 
-**Hints:**
+import numpy as np
+from PIL import Image, ImageDraw, ImageFont
 
-- Use image drawing libraries to render text (PIL/Pillow in Python, `magick` in R)
-- Create a white background matrix matching your image dimensions (height × width)
-- Render a bold letter "S" centered in the image (try 80-90% of image height for font size)
-- Convert the result to a matrix with values in [0, 1] range (0.0 = black, 1.0 = white)
-- The "S" should be clearly visible and fill most of the image space
+# Get image dimensions from the stippled image
+h, w = stipple_array.shape
+
+# Create a white background image
+s_img = Image.new('L', (w, h), color=255)  # 'L' mode = grayscale, 255 = white
+draw = ImageDraw.Draw(s_img)
+
+# Calculate font size (80-90% of image height)
+font_size = int(h * 0.85)
+
+# Try to use a bold font, fallback to default if not available
+try:
+    # Try common bold font paths
+    font = ImageFont.truetype("/System/Library/Fonts/Supplemental/Arial Bold.ttf", font_size)
+except:
+    try:
+        font = ImageFont.truetype("/System/Library/Fonts/Helvetica.ttc", font_size)
+    except:
+        try:
+            font = ImageFont.truetype("arial.ttf", font_size)
+        except:
+            # Fallback to default font
+            font = ImageFont.load_default()
+
+# Get text bounding box to center it
+text = "S"
+# Get text size
+try:
+    bbox = draw.textbbox((0, 0), text, font=font)
+    text_width = bbox[2] - bbox[0]
+    text_height = bbox[3] - bbox[1]
+except:
+    # Fallback for older PIL versions
+    text_width, text_height = draw.textsize(text, font=font)
+
+# Calculate position to center the text
+x = (w - text_width) // 2
+y = (h - text_height) // 2
+
+# Draw the letter "S" in black (0 = black in grayscale)
+draw.text((x, y), text, fill=0, font=font)  # fill=0 means black
+
+# Convert to numpy array and normalize to [0, 1] range
+# Invert so that black (0) becomes 0.0 and white (255) becomes 1.0
+s_array = np.array(s_img, dtype=np.float32) / 255.0
+
+print(f"S letter matrix shape: {s_array.shape}")
+print(f"S letter value range: [{s_array.min():.3f}, {s_array.max():.3f}]")
+```
 
 ### Step 3: Create the Masked Estimate
 
-Your stippled image is a matrix where black dots (0.0) represent data points and white (1.0) is background. The "S" matrix shows where selection bias occurs (black "S" = missing data). To create the masked estimate, remove stipple points (set to white) wherever the "S" is black.
+```{python}
+#| label: create-masked-estimate
+#| echo: false
+#| eval: true
 
-**Hints:**
+import numpy as np
+import matplotlib.pyplot as plt
 
-- Create a binary mask by thresholding the "S" image (e.g., pixels < 0.5 are part of the "S")
-- Apply the mask to your stippled image: where the "S" is black, set those pixels to white (1.0)
-- Where the "S" is white, keep the original stipple values
-- This creates the visual effect of "missing data" in the shape of the "S"
-- Use conditional assignment or boolean masking (e.g., `np.where()` in Python, `ifelse()` in R)
+# Create binary mask from "S" image
+# Pixels < 0.5 are part of the "S" (black = missing data)
+threshold = 0.5
+s_mask = s_array < threshold  # True where "S" is black (missing data)
+
+print(f"Mask shape: {s_mask.shape}")
+print(f"Number of pixels in 'S' (missing data): {s_mask.sum()}")
+print(f"Percentage of image masked: {100 * s_mask.sum() / s_mask.size:.1f}%")
+
+# Apply mask to stippled image
+# Where "S" is black (mask is True), remove stipples by setting to white (1.0)
+# Where "S" is white (mask is False), keep original stipple values
+masked_estimate = np.where(s_mask, 1.0, stipple_array)
+
+print(f"Masked estimate shape: {masked_estimate.shape}")
+print(f"Masked estimate value range: [{masked_estimate.min():.3f}, {masked_estimate.max():.3f}]")
+
+```
 
 ### Step 4: Assemble the Four-Panel Meme
 
-Use the image composition capabilities of matplotlib (Python) or imager (R) to arrange your four matrices as panels in a single figure.
 
-**Hints:**
+```{python}
+#| label: assemble-meme
+#| echo: false
+#| eval: true
+#| fig-cap: "Four-panel statistics meme demonstrating selection bias"
 
-- Create a multi-panel layout (1×4 for horizontal, 2×2 for grid)
-- Display each matrix as a grayscale image: original, stippled, "S", and masked stippled
-- Add clear labels: "Reality", "Your Model", "Selection Bias", "Estimate"
-- Use minimal spacing between panels for a clean, professional look
-- Consider a light background color (like pink) to make panels stand out
-- Save with high DPI (150-300) for quality output
-- In Python: use `plt.subplots()` and `imshow()` for each panel
-- In R: use `par(mfrow = ...)` and `plot()` with imager's `as.cimg()` to convert matrices
+import numpy as np
+import matplotlib.pyplot as plt
 
-## Tips for Success
+# Determine layout based on image dimensions
+h, w = original_array.shape
+aspect_ratio = w / h
 
-1. **Font Selection**: Use bold fonts (Arial Bold, DejaVu Sans Bold) for the "S"
-2. **Threshold Tuning**: Adjust `threshold` (typically 0.5) for clean mask edges
-3. **Spacing**: Minimize gaps between panels (`wspace=0`, `hspace=0`)
-4. **Background**: Light pink background helps panels stand out
-5. **Save Quality**: Use DPI 150-300 for crisp output
-6. **Layout Choice**: 1×4 for wide images, 2×2 for square/tall images
+# Choose layout: 1×4 for wide images, 2×2 for square/tall images
+if aspect_ratio > 1.5:
+    # Wide image: use 1×4 horizontal layout
+    fig, axes = plt.subplots(1, 4, figsize=(16, 4))
+    layout = 'horizontal'
+else:
+    # Square or tall image: use 2×2 grid layout
+    fig, axes = plt.subplots(2, 2, figsize=(10, 10))
+    axes = axes.flatten()  # Flatten to 1D array for easier indexing
+    layout = 'grid'
 
-## Submission Requirements
+# Set light pink background
+fig.patch.set_facecolor('#FFE5E5')  # Light pink background
 
-**Important:** Your final GitHub Pages site should be a clean, professional presentation that focuses on the meme and explanation, not the code.
+# Panel 1: Reality (Original Image)
+axes[0].imshow(original_array, cmap='gray', vmin=0, vmax=1)
+axes[0].axis('off')
+axes[0].set_title('Reality', fontsize=16, fontweight='bold', pad=10)
 
-**Repository Contents:**
+# Panel 2: Your Model (Stippled Image)
+axes[1].imshow(stipple_array, cmap='gray', vmin=0, vmax=1)
+axes[1].axis('off')
+axes[1].set_title('Your Model', fontsize=16, fontweight='bold', pad=10)
 
-- [ ] `index.qmd` file with your code to generate the meme
-- [ ] Any supporting code files (Python `.py` files or R scripts) that your `index.qmd` references
-- [ ] Your original image and stippled image files (or `.npy`/`.rds` files) needed to generate the meme
-- [ ] Rendered HTML output (generated by rendering the `index.qmd` file)
+# Panel 3: Selection Bias (Letter "S")
+axes[2].imshow(s_array, cmap='gray', vmin=0, vmax=1)
+axes[2].axis('off')
+axes[2].set_title('Selection Bias', fontsize=16, fontweight='bold', pad=10)
 
-**HTML Output Requirements:**
+# Panel 4: Estimate (Masked Stippled Image)
+axes[3].imshow(masked_estimate, cmap='gray', vmin=0, vmax=1)
+axes[3].axis('off')
+axes[3].set_title('Estimate', fontsize=16, fontweight='bold', pad=10)
 
-- [ ] **Code should NOT be visible** in the rendered HTML (use `echo: false` for code chunks that generate the meme)
-- [ ] The HTML should display **only the four-panel meme image**
-- [ ] Include a **brief explanation** of selection bias and how your meme demonstrates it
-- [ ] Professional, clean presentation suitable for sharing
+# Minimize spacing between panels
+plt.tight_layout(pad=0.5)
+plt.subplots_adjust(wspace=0, hspace=0.2)
 
-**Submission Checklist:**
+# Save the meme with high DPI
+meme_filename = 'statistics_meme.png'
+plt.savefig(meme_filename, dpi=200, bbox_inches='tight', facecolor='#FFE5E5', edgecolor='none')
+print(f"Meme saved as '{meme_filename}' with 200 DPI")
 
-- [ ] All four panels: Reality, Your Model, Selection Bias, Estimate
-- [ ] Clear labels on each panel
-- [ ] Bold, properly-sized "S" letter
-- [ ] Masked estimate correctly removes stipples within "S"
-- [ ] Clean layout with minimal spacing
-- [ ] Code runs without errors and generates the meme
-- [ ] `index.qmd` file in repository with `echo: false` for meme generation code
-- [ ] Supporting code files (if any) included in repository
-- [ ] Document rendered to HTML successfully (meme generated, code hidden)
-- [ ] HTML files uploaded to your repository
-- [ ] GitHub Pages enabled and working
-- [ ] Site accessible at `https://[your-username].github.io/statsMemeChallenge/`
-- [ ] Final site shows only the meme and explanation (no visible code)
-- [ ] Brief explanation of selection bias included in HTML
+# Display the meme
+plt.show()
+```
 
-**Remember:** Create a memorable, educational visualization that helps others understand selection bias. This is about more than completing an assignment—it's about building a lasting understanding through creative collaboration with AI.
