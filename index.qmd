@@ -24,74 +24,17 @@ Selection bias occurs when observed data isn't representative of the population.
 
 **Key Concept:** Images are simply matrices—2D arrays where each value represents a pixel (0.0 = black, 1.0 = white). Your stippled image is a matrix with black dots (data points) on a white background. Selection bias removes some of these pixels (data points) in a systematic pattern (the "S"), creating a biased estimate. You'll use image composition tools (matplotlib in Python, imager in R) to arrange these matrices into a memorable visualization.
 
-## Exemplar
 
 ![Exemplar statistics meme showing the four-panel structure: Reality (original image), Your Model (stippled version), Selection Bias (letter S), and Estimate (masked stippled image)](statistics_meme.png)
 
 ### Step 1: Load Images
 
-```{r}
-#| echo: false
-#| eval: true
-#| include: false
-
-# Configure reticulate to use misy331_base conda environment
-if (!requireNamespace("reticulate", quietly = TRUE)) {
-  install.packages("reticulate")
-}
-library(reticulate)
-
-# Set the Python path explicitly before any other operations
-python_path <- "/opt/anaconda3/envs/misy331_base/bin/python"
-
-# Verify the Python executable exists
-if (!file.exists(python_path)) {
-  stop("Python not found at: ", python_path, "\nPlease check your conda environment setup.")
-}
-
-# Set environment variable for reticulate
-Sys.setenv(RETICULATE_PYTHON = python_path)
-
-# Try multiple methods to set Python
-# Method 1: Use conda environment by name
-tryCatch({
-  use_condaenv("misy331_base", required = TRUE)
-  cat("✓ Successfully activated conda environment: misy331_base\n")
-}, error = function(e) {
-  cat("Method 1 failed, trying direct path...\n")
-  # Method 2: Use Python path directly
-  tryCatch({
-    use_python(python_path, required = TRUE)
-    cat("✓ Using Python at:", python_path, "\n")
-  }, error = function(e2) {
-    # Method 3: Force set the Python
-    py_config_set(python = python_path)
-    cat("✓ Forced Python path to:", python_path, "\n")
-  })
-})
-
-# Verify Python is available
-if (py_available()) {
-  config <- py_config()
-  cat("✓ Python is available\n")
-  cat("  Path:", config$python, "\n")
-  cat("  Version:", config$version, "\n")
-  cat("  Python executable:", config$python, "\n")
-} else {
-  stop("✗ Python is still not available after configuration.\n",
-       "  Tried path: ", python_path, "\n",
-       "  Please check your conda environment setup.")
-}
-```
-
-::: {.panel-tabset}
-
-### Python
 
 ```{python}
 #| label: load-images
 #| echo: false
 #| eval: true
+#| jupyter: misy331_base
 
 import numpy as np
 from PIL import Image
@@ -112,8 +55,6 @@ stipple_array = np.load('stippleChallenge/stippleImage.npy')
 print(f"Original: {original_array.shape}, Stipple: {stipple_array.shape}")
 ```
 
-
-### Step 2: Create the Block Letter "S"
 
 ```{python}
 #| label: create-s-letter
@@ -172,9 +113,6 @@ s_array = np.array(s_img, dtype=np.float32) / 255.0
 print(f"S letter matrix shape: {s_array.shape}")
 print(f"S letter value range: [{s_array.min():.3f}, {s_array.max():.3f}]")
 ```
-
-### Step 3: Create the Masked Estimate
-
 ```{python}
 #| label: create-masked-estimate
 #| echo: false
@@ -201,8 +139,6 @@ print(f"Masked estimate shape: {masked_estimate.shape}")
 print(f"Masked estimate value range: [{masked_estimate.min():.3f}, {masked_estimate.max():.3f}]")
 
 ```
-
-### Step 4: Assemble the Four-Panel Meme
 
 
 ```{python}
@@ -264,4 +200,27 @@ print(f"Meme saved as '{meme_filename}' with 200 DPI")
 # Display the meme
 plt.show()
 ```
+
+## Understanding Selection Bias
+
+Selection bias happens when the data you observe is not representative of the population you want to study. 
+
+**Reality (Panel 1):** The original image represents the true population—the complete picture of what we want to understand.
+
+**Your Model (Panel 2):** The stippled image represents your data collection method. Each black dot is a data point you've sampled. While not perfect, it captures the essential features of the original image.
+
+**Selection Bias (Panel 3):** The letter "S" represents a systematic pattern of missing data. Just like selection bias in real research, this isn't random—it follows a specific pattern that excludes certain parts of the population.
+
+**Estimate (Panel 4):** When you analyze only the data that remains after selection bias removes observations in the "S" pattern, you get a distorted view of reality. The estimate looks different from both the original image and your model because important information has been systematically excluded.
+
+### Why This Matters
+
+Selection bias can lead to incorrect conclusions. For example:
+- **Survey bias**: If you only survey people who answer their phones, you miss those who don't
+- **Survivorship bias**: Studying only successful companies misses the lessons from failures
+- **Self-selection bias**: People who volunteer for studies may differ from those who don't
+
+It is important that the sample matches the population of interest.
+
+This visualization shows why it is important to check for patterns of missing information that could distort your understanding of reality.
 
