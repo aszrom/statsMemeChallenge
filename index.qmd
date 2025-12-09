@@ -31,7 +31,6 @@ Selection bias occurs when observed data isn't representative of the population.
 ### Step 1: Load Images
 
 ```{r}
-#| label: setup-python
 #| echo: false
 #| eval: true
 #| include: false
