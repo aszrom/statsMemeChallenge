@@ -77,9 +77,6 @@ ul.task-list li input[type="checkbox"] {
 <li><strong>Estimate</strong>: Stippled image with “S” mask applied (biased estimate)</li>
 </ul>
 <p><strong>Key Concept:</strong> Images are simply matrices—2D arrays where each value represents a pixel (0.0 = black, 1.0 = white). Your stippled image is a matrix with black dots (data points) on a white background. Selection bias removes some of these pixels (data points) in a systematic pattern (the “S”), creating a biased estimate. You’ll use image composition tools (matplotlib in Python, imager in R) to arrange these matrices into a memorable visualization.</p>
-</section>
-<section id="exemplar" class="level2">
-<h2 class="anchored" data-anchor-id="exemplar">Exemplar</h2>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="statistics_meme.png" class="img-fluid figure-img"></p>
@@ -88,103 +85,20 @@ ul.task-list li input[type="checkbox"] {
 </div>
 <section id="step-1-load-images" class="level3">
 <h3 class="anchored" data-anchor-id="step-1-load-images">Step 1: Load Images</h3>
-<pre class="{r}"><code>#| echo: false
-#| eval: true
-#| include: false
-
-# Configure reticulate to use misy331_base conda environment
-if (!requireNamespace("reticulate", quietly = TRUE)) {
-  install.packages("reticulate")
-}
-library(reticulate)
-
-# Set the Python path explicitly before any other operations
-python_path &lt;- "/opt/anaconda3/envs/misy331_base/bin/python"
-
-# Verify the Python executable exists
-if (!file.exists(python_path)) {
-  stop("Python not found at: ", python_path, "\nPlease check your conda environment setup.")
-}
-
-# Set environment variable for reticulate
-Sys.setenv(RETICULATE_PYTHON = python_path)
-
-# Try multiple methods to set Python
-# Method 1: Use conda environment by name
-tryCatch({
-  use_condaenv("misy331_base", required = TRUE)
-  cat("✓ Successfully activated conda environment: misy331_base\n")
-}, error = function(e) {
-  cat("Method 1 failed, trying direct path...\n")
-  # Method 2: Use Python path directly
-  tryCatch({
-    use_python(python_path, required = TRUE)
-    cat("✓ Using Python at:", python_path, "\n")
-  }, error = function(e2) {
-    # Method 3: Force set the Python
-    py_config_set(python = python_path)
-    cat("✓ Forced Python path to:", python_path, "\n")
-  })
-})
-
-# Verify Python is available
-if (py_available()) {
-  config &lt;- py_config()
-  cat("✓ Python is available\n")
-  cat("  Path:", config$python, "\n")
-  cat("  Version:", config$version, "\n")
-  cat("  Python executable:", config$python, "\n")
-} else {
-  stop("✗ Python is still not available after configuration.\n",
-       "  Tried path: ", python_path, "\n",
-       "  Please check your conda environment setup.")
-}</code></pre>
-<div class="tabset-margin-container"></div><div class="panel-tabset">
-<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true" href="">Python</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false" href="">Step 2: Create the Block Letter “S”</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-3" role="tab" aria-controls="tabset-1-3" aria-selected="false" href="">Step 3: Create the Masked Estimate</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-4-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-4" role="tab" aria-controls="tabset-1-4" aria-selected="false" href="">Step 4: Assemble the Four-Panel Meme</a></li></ul>
-<div class="tab-content">
-<div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
-<div id="load-images" class="cell" data-execution_count="1">
-<div class="cell-output cell-output-stdout">
-<pre><code>Original: (168, 300), Stipple: (168, 300)</code></pre>
-</div>
-</div>
-</div>
-<div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
-<div id="create-s-letter" class="cell" data-execution_count="2">
-<div class="cell-output cell-output-stdout">
-<pre><code>S letter matrix shape: (168, 300)
-S letter value range: [0.000, 1.000]</code></pre>
-</div>
-</div>
-</div>
-<div id="tabset-1-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-3-tab">
-<div id="create-masked-estimate" class="cell" data-execution_count="3">
-<div class="cell-output cell-output-stdout">
-<pre><code>Mask shape: (168, 300)
-Number of pixels in 'S' (missing data): 4931
-Percentage of image masked: 9.8%
-Masked estimate shape: (168, 300)
-Masked estimate value range: [0.000, 1.000]</code></pre>
-</div>
-</div>
-</div>
-<div id="tabset-1-4" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-4-tab">
-<div id="cell-assemble-meme" class="cell" data-execution_count="4">
-<div class="cell-output cell-output-stdout">
-<pre><code>Meme saved as 'statistics_meme.png' with 200 DPI</code></pre>
-</div>
-<div class="cell-output cell-output-display">
-<div id="assemble-meme" class="quarto-figure quarto-figure-center anchored">
-<figure class="figure">
-<p><img src="index_files/figure-html/assemble-meme-output-2.png" width="1542" height="262" class="figure-img"></p>
-<figcaption>Four-panel statistics meme demonstrating selection bias</figcaption>
-</figure>
-</div>
-</div>
-</div>
-</div>
-</div>
-</div>
+</section>
+</section>
+<section id="understanding-selection-bias" class="level2">
+<h2 class="anchored" data-anchor-id="understanding-selection-bias">Understanding Selection Bias</h2>
+<p>Selection bias happens when the data you observe is not representative of the population you want to study.</p>
+<p><strong>Reality (Panel 1):</strong> The original image represents the true population—the complete picture of what we want to understand.</p>
+<p><strong>Your Model (Panel 2):</strong> The stippled image represents your data collection method. Each black dot is a data point you’ve sampled. While not perfect, it captures the essential features of the original image.</p>
+<p><strong>Selection Bias (Panel 3):</strong> The letter “S” represents a systematic pattern of missing data. Just like selection bias in real research, this isn’t random—it follows a specific pattern that excludes certain parts of the population.</p>
+<p><strong>Estimate (Panel 4):</strong> When you analyze only the data that remains after selection bias removes observations in the “S” pattern, you get a distorted view of reality. The estimate looks different from both the original image and your model because important information has been systematically excluded.</p>
+<section id="why-this-matters" class="level3">
+<h3 class="anchored" data-anchor-id="why-this-matters">Why This Matters</h3>
+<p>Selection bias can lead to incorrect conclusions. For example: - <strong>Survey bias</strong>: If you only survey people who answer their phones, you miss those who don’t - <strong>Survivorship bias</strong>: Studying only successful companies misses the lessons from failures - <strong>Self-selection bias</strong>: People who volunteer for studies may differ from those who don’t</p>
+<p>It is important that the sample matches the population of interest.</p>
+<p>This visualization shows why it is important to check for patterns of missing information that could distort your understanding of reality.</p>
 </section>
 </section>
 </section>

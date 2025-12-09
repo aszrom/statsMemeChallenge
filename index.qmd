@@ -33,7 +33,7 @@ Selection bias occurs when observed data isn't representative of the population.
 ```{python}
 #| label: load-images
 #| echo: false
-#| eval: true
+#| eval: false
 #| jupyter: misy331_base
 
 import numpy as np
@@ -59,7 +59,7 @@ print(f"Original: {original_array.shape}, Stipple: {stipple_array.shape}")
 ```{python}
 #| label: create-s-letter
 #| echo: false
-#| eval: true
+#| eval: false
 
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
@@ -116,7 +116,7 @@ print(f"S letter value range: [{s_array.min():.3f}, {s_array.max():.3f}]")
 ```{python}
 #| label: create-masked-estimate
 #| echo: false
-#| eval: true
+#| eval: false
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -144,7 +144,7 @@ print(f"Masked estimate value range: [{masked_estimate.min():.3f}, {masked_estim
 ```{python}
 #| label: assemble-meme
 #| echo: false
-#| eval: true
+#| eval: false
 #| fig-cap: "Four-panel statistics meme demonstrating selection bias"
 
 import numpy as np
